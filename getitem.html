@@ -1,0 +1,132 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<script type="text/javascript" src="jquery-3.4.1.min.js"></script>
+</head>
+
+<body>
+	<div>
+		<h3>商品详情</h3>	
+		<div>
+			<div>
+				<label id="title" />
+			</div>
+		</div>
+		<div>
+			<label>商品描述：</label>
+			<div>
+				<label id="description" />
+			</div>
+		</div>
+		<div>
+			<label>价格：</label>
+			<div>
+				<label id="price" />
+			</div>
+		</div>
+		<div>
+			<div>
+				<img style="width:200px;height:auto" id="imgUrl" />
+			</div>
+		</div>
+		<div>
+			<label>库存：</label>
+			<div>
+				<label id="stock" />
+			</div>
+		</div>
+		<div>
+			<label>销量：</label>
+			<div>
+				<label id="sales" />
+			</div>
+		</div>
+		<div>
+			<button id="createorder" type="submit">
+				下单
+			</button>
+		</div>
+	</div>
+
+
+</body>
+
+<script type="text/javascript">
+
+	var g_itemVO = {};
+
+	jQuery(document).ready(function(){
+		// 获取商品详情信息
+		$.ajax({
+			type:"GET",
+			url:"http://localhost:8090/item/get",
+			data:{
+				"id":getParam("id")
+			},
+			xhrFields:{withCredentials:true},
+			success:function(data){
+				if(data.status=="success"){
+					g_itemVO = data.data;
+					reloadDom();
+				}else{
+					alert("获取信息失败，原因为：" + data.data.errMsg);
+				}
+			},
+			error:function(data){
+				alert("获取信息失败，原因为：" + data.responseText);
+			}
+		});
+
+		$("#createorder").on("click",function(){		
+			$.ajax({
+				type:"POST",
+				contentType:"application/x-www-form-urlencoded",
+				url:"http://localhost:8090/order/create",
+				data:{
+					"itemId":g_itemVO.id,
+					"amount":1
+				},
+				xhrFields:{withCredentials:true},
+				success:function(data){
+					if(data.status=="success"){
+						alert("下单成功");
+						window.location.reload();
+					}else{
+						alert("下单失败，原因为：" + data.data.errMsg);
+						if (data.data.errCode == 20003) {
+							window.location.href = "login.html";
+						}
+					}
+				},
+				error:function(data){
+					alert("下单失败，原因为：" + data.responseText);
+				}
+			});
+		});
+
+	});
+
+	function getParam(paramName){
+		paramValue = "";
+		if (window.location.search.indexOf("?") == 0) {
+			var reg = new RegExp("(^|&)"+paramName +"=([^&]*)(&|$)");
+			var r = window.location.search.substr(1).match(reg);
+			if(r!=null){
+				paramValue=unescape(r[2]);
+			}
+		}
+		return paramValue;
+	}
+
+	function reloadDom(){
+		$("#title").text(g_itemVO.title);
+		$("#description").text(g_itemVO.description);
+		$("#stock").text(g_itemVO.stock);
+		$("#price").text(g_itemVO.price);
+		$("#imgUrl").attr("src",g_itemVO.imgUrl);
+		$("#sales").text(g_itemVO.sales);
+	}
+
+</script>
+
+</html>
