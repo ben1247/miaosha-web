@@ -81,7 +81,7 @@
 			},
 			xhrFields:{withCredentials:true},
 			success:function(data){
-				if(data.status=="success"){
+				if(data.status==="success"){
 					g_itemVO = data.data;
 					reloadDom();
 					setInterval(reloadDom,1000);
@@ -94,11 +94,17 @@
 			}
 		});
 
-		$("#createorder").on("click",function(){		
+		$("#createorder").on("click",function(){
+			var token = window.localStorage["token"];
+			if (token == null){
+				alert("没有登录，不能下单");
+				window.location.href = "login.html";
+				return false;
+			}
 			$.ajax({
 				type:"POST",
 				contentType:"application/x-www-form-urlencoded",
-				url:"http://"+g_host+"/order/create",
+				url:"http://"+g_host+"/order/create?token="+token,
 				data:{
 					"itemId":g_itemVO.id,
 					"amount":1,
@@ -106,12 +112,12 @@
 				},
 				xhrFields:{withCredentials:true},
 				success:function(data){
-					if(data.status=="success"){
+					if(data.status==="success"){
 						alert("下单成功");
 						window.location.reload();
 					}else{
 						alert("下单失败，原因为：" + data.data.errMsg);
-						if (data.data.errCode == 20003) {
+						if (data.data.errCode === 20003) {
 							window.location.href = "login.html";
 						}
 					}
@@ -126,7 +132,7 @@
 
 	function getParam(paramName){
 		paramValue = "";
-		if (window.location.search.indexOf("?") == 0) {
+		if (window.location.search.indexOf("?") === 0) {
 			var reg = new RegExp("(^|&)"+paramName +"=([^&]*)(&|$)");
 			var r = window.location.search.substr(1).match(reg);
 			if(r!=null){
@@ -144,7 +150,7 @@
 		$("#imgUrl").attr("src",g_itemVO.imgUrl);
 		$("#sales").text(g_itemVO.sales);
 
-		if (g_itemVO.promoStatus==1) {
+		if (g_itemVO.promoStatus===1) {
 			// 秒杀活动还未开始
 			var startTime = g_itemVO.promoStartDate.replace(new RegExp("-","gm"),"/");
 			startTime = (new Date(startTime)).getTime();
@@ -164,7 +170,7 @@
 
 			$("#createorder").attr("disabled",true);
 
-		}else if (g_itemVO.promoStatus==2) {
+		}else if (g_itemVO.promoStatus===2) {
 			// 秒杀活动正在进行中
 			$("#promoStartDate").text("秒杀正在进行中");
 			$("#promoPrice").text(g_itemVO.promoPrice);

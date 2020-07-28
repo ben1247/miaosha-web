@@ -44,10 +44,10 @@
 			var telphone = $("#telphone").val();
 			var password = $("#password").val();
 
-			if (telphone == null || telphone == "") {
+			if (telphone == null || telphone === "") {
 				alert("手机号不能为空");
 				return false;
-			}else if (password == null || password == "") {
+			}else if (password == null || password === "") {
 				alert("密码不能为空");
 				return false;
 			}
@@ -62,8 +62,10 @@
 				},
 				xhrFields:{withCredentials:true},
 				success:function(data){
-					if(data.status=="success"){
+					if(data.status==="success"){
 						alert("登录成功");
+						var token = data.data;
+						window.localStorage["token"] = token;
 						window.location.href = "listitem.html";
 					}else{
 						alert("登录成功录失败，原因为：" + data.data.errMsg);
