@@ -64,6 +64,7 @@
 		</div>
 	</div>	
 
+	<input type="hidden" id="isInit" value="0" />
 
 </body>
 
@@ -72,27 +73,6 @@
 	var g_itemVO = {};
 
 	jQuery(document).ready(function(){
-		// 获取商品详情信息
-		$.ajax({
-			type:"GET",
-			url:"http://"+g_host+"/item/get",
-			data:{
-				"id":getParam("id")
-			},
-			xhrFields:{withCredentials:true},
-			success:function(data){
-				if(data.status==="success"){
-					g_itemVO = data.data;
-					reloadDom();
-					setInterval(reloadDom,1000);
-				}else{
-					alert("获取信息失败，原因为：" + data.data.errMsg);
-				}
-			},
-			error:function(data){
-				alert("获取信息失败，原因为：" + data.responseText);
-			}
-		});
 
 		$("#createorder").on("click",function(){
 			var token = window.localStorage["token"];
@@ -128,7 +108,46 @@
 			});
 		});
 
+		initView();
+
 	});
+
+	function hasInit() {
+		return $("#isInit").val();
+	}
+	function setHasInit() {
+		$("#isInit").val("1");
+	}
+
+	function initView() {
+
+		if (hasInit()==="1"){
+			return;
+		}
+
+		// 获取商品详情信息
+		$.ajax({
+			type:"GET",
+			url:"http://"+g_host+"/item/get",
+			data:{
+				"id":getParam("id")
+			},
+			xhrFields:{withCredentials:true},
+			success:function(data){
+				if(data.status==="success"){
+					g_itemVO = data.data;
+					reloadDom();
+					setInterval(reloadDom,1000);
+					setHasInit();
+				}else{
+					alert("获取信息失败，原因为：" + data.data.errMsg);
+				}
+			},
+			error:function(data){
+				alert("获取信息失败，原因为：" + data.responseText);
+			}
+		});
+	}
 
 	function getParam(paramName){
 		paramValue = "";
